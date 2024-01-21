@@ -162,7 +162,21 @@ export class NextMDB {
   }
 
   deleteAllCollections() {
+    const collections = world.scoreboard.getObjectives();
+    let count = 0;
+    for(let i = 0; i < collections.length; i++) {
+      const collection = collections[i];
+      if(collection.id.startsWith(configs.id)) {
+        world.scoreboard.removeObjective(collection.id)
+        count++;
+      }
+    }
 
+    if(count == 0) {
+      return { text: "Collection not found.", status: "no" };
+    } else {
+      return { text: `Collection deleted. Number of deleted clusters: ${count}`, status: "ok" };
+    }
 
   }
 
