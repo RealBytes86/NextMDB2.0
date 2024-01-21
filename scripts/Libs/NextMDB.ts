@@ -11,7 +11,7 @@ export class NextMDB {
 
   Collection(collection: string, json = true) {
     if(typeof collection == "string") {
-      return new Collection(collection);
+      return new Collection(collection, json);
     } else {
       return { text: "The collection name is not a string.", status: "no" };
     }
@@ -111,6 +111,31 @@ export class NextMDB {
 
   getCollection(collection: string) {
 
+    if(typeof collection == "string") {
+      const collections = world.scoreboard.getObjectives();
+      const id:string = this.#base64.encode(`${configs.name}${collection}`);
+      const chunks = [];
+      for(let i = 0; i < collections.length; i++) { 
+        const collection = collections[i];
+        if(collection.id.startsWith(id)) {
+          chunks.push({
+            name: collection.displayName,
+            id: collection.id,
+            size: collection.getScores().length,
+          });
+        }
+      }
+      
+      if(chunks.length == 0) {
+        return { text: "Collection not found.", status: "no" };
+      } else {
+        return { text: "Collection found.", status: "ok", json: chunks };
+      }
+
+    } else {
+      return { text: "The collection name is not a string.", status: "no" };
+    }
+
   }
 
   getALLCollections() { 
@@ -128,14 +153,30 @@ export class NextMDB {
 }
 
 class Collection {
+
+  private async chunksCollections() {
+
+    const collections = world.scoreboard.getObjectives();
+    for(let i = 0; i < collections.length; i++) { 
+      const collection = collections[i];
+    }
+  }
+
   collection: string;
   mem: any;
-  constructor(collection: string) {
+  json: boolean;
+  constructor(collection: string, json:boolean) {
     this.collection = collection;
-    this.mem = [];
+    this.json = json;
   }
 
   async findAsync() {
+
+    const chunks = [];
+
+  }
+
+  async insertAsync() { 
 
   }
 
@@ -154,7 +195,7 @@ class Collection {
 }
 
 class PlayerCollection {
-  
+
 }
 
 export class Base64 {
