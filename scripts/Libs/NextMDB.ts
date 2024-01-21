@@ -1,14 +1,54 @@
 import { world } from "@minecraft/server";
 
+const configs = {
+  name: "NextMDB:",
+  id: "TmV4dE1EQjo="
+}
 
 export class NextMDB {
+
+  #base64 = new Base64();
 
   Collection(collection: string) {
 
   }
 
   createCollection(collection: string) {
+    if(typeof collection == "string") {
+      const collections:any = world.scoreboard.getObjectives();
+      const id:string = this.#base64.encode(`${configs.name}${collection}`)
+      const name:string = `${configs.name}${collection}`; 
+      for(let i = 0; i < collections.length; i++) {
+        const collection = collections[i];
+        if(collection.id == id) {
+          world.scoreboard.addObjective(id, name);
+          return { text: "Collection created.", status: "ok" };
+        }
+      }
+      return { text: "Collection exists.", status: "no" };
 
+    } else {
+      return { text: "Collection name is not a string.", status: "no" };
+    } 
+    
+  }
+
+  existsCollection(collection: string) {
+    if(typeof collection == "string") {
+      const collections:any = world.scoreboard.getObjectives();
+      const id:string = this.#base64.encode(`${configs.name}${collection}`)
+      const name:string = `${configs.name}${collection}`; 
+      for(let i = 0; i < collections.length; i++) {
+        const collection = collections[i];
+        if(collection.id == id) {
+          return true;
+        }
+      }
+      return false;
+
+    } else {
+      return false;
+    } 
   }
 
   deleteCollection(collection: string) { 
@@ -32,15 +72,13 @@ export class NextMDB {
   }
 }
 
-
-
 export class Base64 {
 
   #chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/"
 
   encode(string: string) {
-    let encoded = "";
-    let padding = "";
+    let encoded:string = "";
+    let padding:string = "";
 
     for(let i = 0; i < string.length % 3; i++) {
         padding += "=";
@@ -63,7 +101,7 @@ export class Base64 {
 
   decode(string: string) {
 
-    let decoded = "";
+    let decoded:string = "";
   
     string = string.replace(/=+$/, "");
   
