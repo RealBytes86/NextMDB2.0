@@ -1,8 +1,9 @@
 import { world, system } from "@minecraft/server";
 import { config } from "./config";
-import { NextMDB } from "./Libs/NextMDB";
+import { Base64, NextMDB } from "./Libs/NextMDB";
 
 const client = new NextMDB();
+const base = new Base64();
 const data = client.createCollection("Helllo World!");
 console.warn(data.text)
 
@@ -22,6 +23,9 @@ function startEvents() {
         ctx.sender.sendMessage("Test Erfolgreich");
   
         return; 
+      } else if(commandName == "encode") {
+        ctx.sender.sendMessage(base.encode(args.join(" ")));
+        return;
       }
   
   

@@ -2,7 +2,7 @@ import { world } from "@minecraft/server";
 
 const configs = {
   name: "NextMDB:",
-  id: "TmV4dE1EQjo="
+  id: "TmV4dE1EQj"
 }
 
 export class NextMDB {
@@ -139,7 +139,26 @@ export class NextMDB {
   }
 
   getALLCollections() { 
+    const collections = world.scoreboard.getObjectives();
+    const chunks = [];
+    for(let i = 0; i < collections.length; i++) { 
+      const collection = collections[i];
+      if(collection.id.startsWith(configs.id)) {
+        chunks.push(
+          {
+            name: collection.displayName,
+            id: collection.id,
+            size: collection.getScores().length,
+          }
+        )
+      }
+    }
 
+    if(chunks.length == 0) {
+      return { text: "Collection not found.", status: "no" };
+    } else {
+      return { text: "Collection found.", status: "ok", json: chunks };
+    }
   }
 
   deleteAllCollections() {
