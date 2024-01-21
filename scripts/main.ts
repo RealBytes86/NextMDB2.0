@@ -1,16 +1,36 @@
 import { world, system } from "@minecraft/server";
+import { config } from "./config";
 
 
-world.beforeEvents.chatSend.subscribe( (ctx) => {
+function startEvents() {
+
+  world.beforeEvents.chatSend.subscribe( (ctx) => {
+
+    let message:string = ctx.message;
+
+    if(message.startsWith(config.prefix)) {
+      ctx.cancel = true;
   
-  let message = ctx.message;
-
-  if(message.startsWith(".")) {
-    ctx.cancel = true;
-    let command = message.replace(".", "");
-    if(command == "test") {
-      ctx.sender.sendMessage("Hello World!");
+      const args:any = message.slice(config.prefix.length).trim().split(/ +/g);
+      const commandName:string = args.shift().toLowerCase();
+  
+      if(commandName == "test") {
+        ctx.sender.sendMessage("Test Erfolgreich");
+  
+        return; 
+      }
+  
+  
+      ctx.sender.sendMessage("§7[§6Command§7]§r §c" + commandName + " not exist.");
+      return;
+  
     }
-  }
+    
+  })
   
+}
+
+
+world.afterEvents.worldInitialize.subscribe((ctx) => {
+  startEvents();
 })
