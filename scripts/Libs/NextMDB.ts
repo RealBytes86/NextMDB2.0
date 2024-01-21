@@ -9,18 +9,18 @@ export class NextMDB {
 
   #base64 = new Base64();
 
-  Collection(collection: string) {
+  Collection(collection: string, json = true) {
     if(typeof collection == "string") {
       return new Collection(collection);
     } else {
-      return { text: "Collection name is not a string.", status: "no" };
+      return { text: "The collection name is not a string.", status: "no" };
     }
   }
 
   createCollection(collection: string) {
     if(typeof collection == "string") {
       const collections = world.scoreboard.getObjectives();
-      const id:string = this.#base64.encode(`${configs.name}${collection}`)
+      const id:string = this.#base64.encode(`${configs.name}${collection}#1`)
       const name:string = `${configs.name}${collection}`; 
       for(let i = 0; i < collections.length; i++) {
         const collection = collections[i];
@@ -32,7 +32,7 @@ export class NextMDB {
       return { text: "Collection exists.", status: "no" };
 
     } else {
-      return { text: "Collection name is not a string.", status: "no" };
+      return { text: "The collection name is not a string.", status: "no" };
     } 
     
   }
@@ -40,8 +40,7 @@ export class NextMDB {
   existsCollection(collection: string) {
     if(typeof collection == "string") {
       const collections = world.scoreboard.getObjectives();
-      const id:string = this.#base64.encode(`${configs.name}${collection}`)
-      const name:string = `${configs.name}${collection}`; 
+      const id:string = this.#base64.encode(`${configs.name}${collection}#1`)
       for(let i = 0; i < collections.length; i++) {
         const collection = collections[i];
         if(collection.id == id) {
@@ -59,25 +58,54 @@ export class NextMDB {
     if(typeof collection == "string") {
       const collections = world.scoreboard.getObjectives();
       const id:string = this.#base64.encode(`${configs.name}${collection}`)
-      const name:string = `${configs.name}${collection}`; 
+      let count = 0;
       for(let i = 0; i < collections.length; i++) {
         const collection = collections[i];
-        if(collection.id == id) {
-
-
-
+        if(collection.id.startsWith(id)) {
           world.scoreboard.removeObjective(collection.id)
-          return { text: "Collection created.", status: "ok" };
+          count++;
         }
       }
-      return { text: "Collection exists.", status: "no" };
 
+      if(count == 0) {
+        return { text: "Collection not found.", status: "no" };
+      } else {
+        return { text: `Collection deleted. Number of deleted clusters: ${count}`, status: "ok" };
+      }
+    
     } else {
-      return { text: "Collection name is not a string.", status: "no" };
+      return { text: "The collection name is not a string.", status: "no" };
     } 
   }
 
-  resetCollection(collection: string) { 
+  resetCollection(collection: string) {
+
+    if(typeof collection == "string") {
+      const collections = world.scoreboard.getObjectives();
+      const id:string = this.#base64.encode(`${configs.name}${collection}`)
+      let count = 0;
+      for(let i = 0; i < collections.length; i++) {
+        const collection = collections[i];
+        if(collection.id.startsWith(id)) {
+          world.scoreboard.removeObjective(collection.id)
+          count++;
+        }
+      }
+
+      if(count == 0) {
+        return { text: "Collection not found.", status: "no" };
+      } else {
+
+        const newID:string = this.#base64.encode(`${configs.name}${collection}#1`)
+        const newNAME:string = `${configs.name}${collection}`; 
+        world.scoreboard.addObjective(newID, newNAME);
+
+        return { text: `Collection reseted. Number of reseted clusters: ${count}`, status: "ok" };
+      }
+    
+    } else {
+      return { text: "Collection name is not a string.", status: "no" };
+    } 
 
   }
 
@@ -102,11 +130,19 @@ class Collection {
     this.mem = [];
   }
 
-  fetchDocument() {
+  async findAsync() {
 
   }
 
-  findDocument() {
+  async updateAsync() {
+
+  }
+
+  async deleteAsync() {
+
+  }
+
+  async hasAsync() { 
 
   }
 }
