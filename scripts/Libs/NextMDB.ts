@@ -21,15 +21,15 @@ export class NextMDB {
     if(typeof collection == "string") {
       const collections = world.scoreboard.getObjectives();
       const id:string = this.#base64.encode(`${configs.name}${collection}#1`)
-      const name:string = `${configs.name}${collection}`; 
+      const name:string = `${collection}#1`; 
       for(let i = 0; i < collections.length; i++) {
         const collection = collections[i];
         if(collection.id == id) {
-          world.scoreboard.addObjective(id, name);
-          return { text: "Collection created.", status: "ok" };
+          return { text: "Collection exists.", status: "no" };
         }
       }
-      return { text: "Collection exists.", status: "no" };
+      world.scoreboard.addObjective(id, name);
+      return { text: "Collection created.", status: "no" };
 
     } else {
       return { text: "The collection name is not a string.", status: "no" };
@@ -97,7 +97,7 @@ export class NextMDB {
       } else {
 
         const newID:string = this.#base64.encode(`${configs.name}${collection}#1`)
-        const newNAME:string = `${configs.name}${collection}`; 
+        const newNAME:string = `${collection}#1`; 
         world.scoreboard.addObjective(newID, newNAME);
 
         return { text: `Collection reseted. Number of reseted clusters: ${count}`, status: "ok" };
@@ -113,11 +113,16 @@ export class NextMDB {
 
   }
 
-  getALLCollection() { 
+  getALLCollections() { 
 
   }
 
-  resetAllCollection() {
+  deleteAllCollections() {
+
+
+  }
+
+  resetAllCollections() {
     
   }
 }
@@ -145,6 +150,11 @@ class Collection {
   async hasAsync() { 
 
   }
+
+}
+
+class PlayerCollection {
+  
 }
 
 export class Base64 {

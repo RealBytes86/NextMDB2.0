@@ -1,5 +1,10 @@
 import { world, system } from "@minecraft/server";
 import { config } from "./config";
+import { NextMDB } from "./Libs/NextMDB";
+
+const client = new NextMDB();
+const data = client.createCollection("Helllo World!");
+console.warn(data.text)
 
 function startEvents() {
 
