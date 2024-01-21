@@ -17,7 +17,7 @@ export class NextMDB {
     }
   }
 
-  createCollection(collection: string) {
+  async createCollection(collection: string) {
     if(typeof collection == "string") {
       const collections = world.scoreboard.getObjectives();
       const id:string = this.#base64.encode(`${configs.name}${collection}#1`)
@@ -37,7 +37,7 @@ export class NextMDB {
     
   }
 
-  existsCollection(collection: string) {
+  async existsCollection(collection: string) {
     if(typeof collection == "string") {
       const collections = world.scoreboard.getObjectives();
       const id:string = this.#base64.encode(`${configs.name}${collection}#1`)
@@ -54,7 +54,7 @@ export class NextMDB {
     } 
   }
 
-  deleteCollection(collection: string) { 
+  async deleteCollection(collection: string) { 
     if(typeof collection == "string") {
       const collections = world.scoreboard.getObjectives();
       const id:string = this.#base64.encode(`${configs.name}${collection}`)
@@ -78,7 +78,7 @@ export class NextMDB {
     } 
   }
 
-  resetCollection(collection: string) {
+  async resetCollection(collection: string) {
 
     if(typeof collection == "string") {
       const collections = world.scoreboard.getObjectives();
@@ -109,7 +109,7 @@ export class NextMDB {
 
   }
 
-  getCollection(collection: string) {
+  async getCollection(collection: string) {
 
     if(typeof collection == "string") {
       const collections = world.scoreboard.getObjectives();
@@ -138,7 +138,7 @@ export class NextMDB {
 
   }
 
-  getALLCollections() { 
+  async getALLCollections() { 
     const collections = world.scoreboard.getObjectives();
     const chunks = [];
     for(let i = 0; i < collections.length; i++) { 
@@ -161,7 +161,7 @@ export class NextMDB {
     }
   }
 
-  deleteAllCollections() {
+  async deleteAllCollections() {
     const collections = world.scoreboard.getObjectives();
     let count = 0;
     for(let i = 0; i < collections.length; i++) {
@@ -180,17 +180,19 @@ export class NextMDB {
 
   }
 
-  resetAllCollections() {
+  async resetAllCollections() {
     const collections = world.scoreboard.getObjectives();
     let count = 0;
     const saves:any = [];
     for(let i = 0; i < collections.length; i++) {
       const collection = collections[i];
+      const id = collection.id;
+      const name = collection.displayName;
       if(collection.id.startsWith(configs.id)) {
-        world.scoreboard.removeObjective(collection.id);
+        world.scoreboard.removeObjective(id);
         count++;
-        if(collection.displayName.endsWith("#1")) {
-          saves.push({name: collection.displayName, id: collection.id});
+        if(name.endsWith("#1")) {
+          saves.push({name: name, id: id});
           continue;
         }
       }
@@ -202,7 +204,7 @@ export class NextMDB {
 
       for(let i = 0; i < saves.length; i++) {
         const save = saves[i];
-        world.scoreboard.addObjective(save.id, save.displayName);
+        world.scoreboard.addObjective(save.id, save.name);
         continue;
       }
 

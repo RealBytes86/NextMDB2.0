@@ -4,8 +4,11 @@ import { Base64, NextMDB } from "./Libs/NextMDB";
 
 const client = new NextMDB();
 const base = new Base64();
+
+client.deleteAllCollections();
+client.createCollection("test");
+
 const data = client.createCollection("Helllo World!");
-console.warn(data.text)
 
 function startEvents() {
 
