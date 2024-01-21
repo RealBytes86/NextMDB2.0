@@ -175,13 +175,39 @@ export class NextMDB {
     if(count == 0) {
       return { text: "Collection not found.", status: "no" };
     } else {
-      return { text: `Collection deleted. Number of deleted clusters: ${count}`, status: "ok" };
+      return { text: `All collection deleted. Number of deleted clusters: ${count}`, status: "ok" };
     }
 
   }
 
   resetAllCollections() {
-    
+    const collections = world.scoreboard.getObjectives();
+    let count = 0;
+    const saves:any = [];
+    for(let i = 0; i < collections.length; i++) {
+      const collection = collections[i];
+      if(collection.id.startsWith(configs.id)) {
+        world.scoreboard.removeObjective(collection.id);
+        count++;
+        if(collection.displayName.endsWith("#1")) {
+          saves.push({name: collection.displayName, id: collection.id});
+          continue;
+        }
+      }
+    }
+
+    if(saves.length == 0) {
+      return { text: "Collection not found.", status: "no" };
+    } else {
+
+      for(let i = 0; i < saves.length; i++) {
+        const save = saves[i];
+        world.scoreboard.addObjective(save.id, save.displayName);
+        continue;
+      }
+
+      return { text: `All collection reseted. Number of reseted clusters: ${count}`, status: "ok" };
+    }
   }
 }
 
