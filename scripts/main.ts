@@ -1,7 +1,6 @@
 import { world, system } from "@minecraft/server";
 import { config } from "./config";
 
-
 function startEvents() {
 
   world.beforeEvents.chatSend.subscribe( (ctx) => {

@@ -10,12 +10,16 @@ export class NextMDB {
   #base64 = new Base64();
 
   Collection(collection: string) {
-
+    if(typeof collection == "string") {
+      return new Collection(collection);
+    } else {
+      return { text: "Collection name is not a string.", status: "no" };
+    }
   }
 
   createCollection(collection: string) {
     if(typeof collection == "string") {
-      const collections:any = world.scoreboard.getObjectives();
+      const collections = world.scoreboard.getObjectives();
       const id:string = this.#base64.encode(`${configs.name}${collection}`)
       const name:string = `${configs.name}${collection}`; 
       for(let i = 0; i < collections.length; i++) {
@@ -35,7 +39,7 @@ export class NextMDB {
 
   existsCollection(collection: string) {
     if(typeof collection == "string") {
-      const collections:any = world.scoreboard.getObjectives();
+      const collections = world.scoreboard.getObjectives();
       const id:string = this.#base64.encode(`${configs.name}${collection}`)
       const name:string = `${configs.name}${collection}`; 
       for(let i = 0; i < collections.length; i++) {
@@ -52,7 +56,25 @@ export class NextMDB {
   }
 
   deleteCollection(collection: string) { 
+    if(typeof collection == "string") {
+      const collections = world.scoreboard.getObjectives();
+      const id:string = this.#base64.encode(`${configs.name}${collection}`)
+      const name:string = `${configs.name}${collection}`; 
+      for(let i = 0; i < collections.length; i++) {
+        const collection = collections[i];
+        if(collection.id == id) {
 
+
+
+          world.scoreboard.removeObjective(collection.id)
+          return { text: "Collection created.", status: "ok" };
+        }
+      }
+      return { text: "Collection exists.", status: "no" };
+
+    } else {
+      return { text: "Collection name is not a string.", status: "no" };
+    } 
   }
 
   resetCollection(collection: string) { 
@@ -69,6 +91,23 @@ export class NextMDB {
 
   resetAllCollection() {
     
+  }
+}
+
+class Collection {
+  collection: string;
+  mem: any;
+  constructor(collection: string) {
+    this.collection = collection;
+    this.mem = [];
+  }
+
+  fetchDocument() {
+
+  }
+
+  findDocument() {
+
   }
 }
 

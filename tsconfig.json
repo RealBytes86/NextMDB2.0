@@ -1,18 +1,18 @@
 { 
     "compilerOptions":{ 
-       "target":"es6",
+       "target":"ES2021",
        "moduleResolution":"node",
        "module":"es2020",
        "declaration":false,
        "noLib":false,
        "emitDecoratorMetadata":true,
        "experimentalDecorators":true,
-       "sourceMap":true,
+       "sourceMap":false,
        "pretty":true,
        "forceConsistentCasingInFileNames": true,
        "strict": true,
-       "allowUnreachableCode":true,
-       "allowUnusedLabels":true,
+       "allowUnreachableCode":false,
+       "allowUnusedLabels":false,
        "noImplicitAny":true,
        "noImplicitReturns":false,
        "noImplicitUseStrict":false,
@@ -23,8 +23,7 @@
        "noEmitHelpers":true
     },
     "include":[ 
-       "scripts/**/*"
-    ],
+       "scripts/**/*"],
     "exclude":[ 
        "node_modules"
     ],
