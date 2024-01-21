@@ -1,0 +1,26 @@
+{
+  "format_version": 2,
+  "header": {
+    "name": "NextMDB",
+    "description": "Made by Reversed Codes",
+    "uuid": "331d0948-b1de-40a4-bbfe-27c16ba26590",
+    "version": [0, 0, 1],
+    "min_engine_version": [1, 20, 30]
+  },
+  "modules": [
+    {
+      "description": "Script resources",
+      "language": "javascript",
+      "type": "script",
+      "uuid": "7c7e693f-99f4-41a9-95e0-1f57b37e1e12",
+      "version": [0, 0, 1],
+      "entry": "scripts/main.js"
+    }
+  ],
+  "dependencies": [
+    {
+      "module_name": "@minecraft/server",
+      "version": "1.8.0-beta"
+    }
+  ]
+}
