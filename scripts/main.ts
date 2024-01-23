@@ -20,7 +20,7 @@ function startEvents() {
       const commandName:string = args.shift().toLowerCase();
 
       if(commandName == "test") {
-        for(let i:number = 0; i <= 5000; i++) {
+        for(let i:number = 0; i <= 1; i++) {
           await database.insertAsync(i.toString(), {id: i});
         }
         return; 
