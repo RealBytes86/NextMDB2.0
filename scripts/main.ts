@@ -20,7 +20,9 @@ function startEvents() {
       const commandName:string = args.shift().toLowerCase();
 
       if(commandName == "test") {
-        await database.insertAsync("test", {name: "Kevin"})
+        for(let i:number = 0; i <= 5000; i++) {
+          await database.insertAsync(i.toString(), {id: i});
+        }
         return; 
       } else if(commandName == "encode") {
         ctx.sender.sendMessage(base.encode(args.join(" ")));
@@ -41,6 +43,9 @@ function startEvents() {
 
 
 world.afterEvents.worldInitialize.subscribe(async (ctx) => {
+  await client.deleteCollection("database").then((response) => {
+    console.warn(response.text)
+  })
   await client.createCollection("database");
 
   startEvents();

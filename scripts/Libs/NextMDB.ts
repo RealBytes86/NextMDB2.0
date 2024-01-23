@@ -61,7 +61,8 @@ export class NextMDB {
   async deleteCollection(collection: string): Promise<{text: string, status: string}> {
     if(typeof collection == "string") {
       const collections: ScoreboardObjective[] = world.scoreboard.getObjectives();
-      const id:string = this.#base64.encode(`${configs.name}${collection}`)
+      const id:string = this.#base64.encode(`${configs.name}${collection}`).slice(0, -3);
+      world.sendMessage(id)
       let count: number = 0;
       for(let i:number = 0; i < collections.length; i++) {
         const collection: ScoreboardObjective = collections[i];
@@ -87,7 +88,7 @@ export class NextMDB {
 
     if(typeof collection == "string") {
       const collections: ScoreboardObjective[] = world.scoreboard.getObjectives();
-      const id:string = this.#base64.encode(`${configs.name}${collection}`)
+      const id:string = this.#base64.encode(`${configs.name}${collection}`).slice(0, -3);
       let count: number = 0;
       for(let i: number = 0; i < collections.length; i++) {
         const collection: ScoreboardObjective = collections[i];
@@ -120,7 +121,7 @@ export class NextMDB {
 
     if(typeof collection == "string") {
       const collections: ScoreboardObjective[] = world.scoreboard.getObjectives();
-      const id:string = this.#base64.encode(`${configs.name}${collection}`);
+      const id:string = this.#base64.encode(`${configs.name}${collection}`).slice(0, -3);;
       const chunks: any = [];
       for(let i: number = 0; i < collections.length; i++) {
         const collection: ScoreboardObjective = collections[i];
