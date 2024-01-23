@@ -5,9 +5,6 @@ import { Base64, NextMDB } from "./Libs/NextMDB";
 const client = new NextMDB();
 const base = new Base64();
 
-client.deleteAllCollections();
-client.createCollection("test");
-
 const data = client.createCollection("Helllo World!");
 
 function startEvents() {
@@ -23,6 +20,7 @@ function startEvents() {
       const commandName:string = args.shift().toLowerCase();
   
       if(commandName == "test") {
+        ctx.sender.sendMessage("PONG!");
         ctx.sender.sendMessage("Test Erfolgreich");
   
         return; 
@@ -43,5 +41,8 @@ function startEvents() {
 
 
 world.afterEvents.worldInitialize.subscribe((ctx) => {
+  client.deleteAllCollections();
+  client.createCollection("database#1");
+  client.createCollection("database#2");
   startEvents();
 })

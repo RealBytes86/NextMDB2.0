@@ -1,4 +1,4 @@
-import { world } from "@minecraft/server";
+import { ScoreboardObjective, world } from "@minecraft/server";
 
 const configs = {
   name: "NextMDB:",
@@ -19,11 +19,11 @@ export class NextMDB {
 
   async createCollection(collection: string) {
     if(typeof collection == "string") {
-      const collections = world.scoreboard.getObjectives();
+      const collections: ScoreboardObjective[] = world.scoreboard.getObjectives();
       const id:string = this.#base64.encode(`${configs.name}${collection}#1`)
       const name:string = `${collection}#1`; 
-      for(let i = 0; i < collections.length; i++) {
-        const collection = collections[i];
+      for(let i: number= 0; i < collections.length; i++) {
+        const collection: ScoreboardObjective = collections[i];
         if(collection.id == id) {
           return { text: "Collection exists.", status: "no" };
         }
@@ -39,10 +39,10 @@ export class NextMDB {
 
   async existsCollection(collection: string) {
     if(typeof collection == "string") {
-      const collections = world.scoreboard.getObjectives();
+      const collections: ScoreboardObjective[] = world.scoreboard.getObjectives();
       const id:string = this.#base64.encode(`${configs.name}${collection}#1`)
-      for(let i = 0; i < collections.length; i++) {
-        const collection = collections[i];
+      for(let i:number = 0; i < collections.length; i++) {
+        const collection: ScoreboardObjective = collections[i];
         if(collection.id == id) {
           return true;
         }
@@ -54,13 +54,13 @@ export class NextMDB {
     } 
   }
 
-  async deleteCollection(collection: string) { 
+  async deleteCollection(collection: string): Promise<{text: string, status: string}> {
     if(typeof collection == "string") {
-      const collections = world.scoreboard.getObjectives();
+      const collections: ScoreboardObjective[] = world.scoreboard.getObjectives();
       const id:string = this.#base64.encode(`${configs.name}${collection}`)
-      let count = 0;
-      for(let i = 0; i < collections.length; i++) {
-        const collection = collections[i];
+      let count: number = 0;
+      for(let i:number = 0; i < collections.length; i++) {
+        const collection: ScoreboardObjective = collections[i];
         if(collection.id.startsWith(id)) {
           world.scoreboard.removeObjective(collection.id)
           count++;
@@ -78,14 +78,14 @@ export class NextMDB {
     } 
   }
 
-  async resetCollection(collection: string) {
+  async resetCollection(collection: string): Promise<{text: string, status: string}> {
 
     if(typeof collection == "string") {
-      const collections = world.scoreboard.getObjectives();
+      const collections: ScoreboardObjective[] = world.scoreboard.getObjectives();
       const id:string = this.#base64.encode(`${configs.name}${collection}`)
-      let count = 0;
-      for(let i = 0; i < collections.length; i++) {
-        const collection = collections[i];
+      let count: number = 0;
+      for(let i: number = 0; i < collections.length; i++) {
+        const collection: ScoreboardObjective = collections[i];
         if(collection.id.startsWith(id)) {
           world.scoreboard.removeObjective(collection.id)
           count++;
@@ -109,14 +109,14 @@ export class NextMDB {
 
   }
 
-  async getCollection(collection: string) {
+  async getCollection(collection: string): Promise<{text: string, status: string, json?: [{name: string, id: string, size:number}]}> {
 
     if(typeof collection == "string") {
-      const collections = world.scoreboard.getObjectives();
+      const collections: ScoreboardObjective[] = world.scoreboard.getObjectives();
       const id:string = this.#base64.encode(`${configs.name}${collection}`);
-      const chunks = [];
-      for(let i = 0; i < collections.length; i++) { 
-        const collection = collections[i];
+      const chunks: any = [];
+      for(let i: number = 0; i < collections.length; i++) {
+        const collection: ScoreboardObjective = collections[i];
         if(collection.id.startsWith(id)) {
           chunks.push({
             name: collection.displayName,
@@ -127,7 +127,7 @@ export class NextMDB {
       }
       
       if(chunks.length == 0) {
-        return { text: "Collection not found.", status: "no" };
+        return { text: "Collection not found.", status: "no", json: undefined };
       } else {
         return { text: "Collection found.", status: "ok", json: chunks };
       }
@@ -138,11 +138,11 @@ export class NextMDB {
 
   }
 
-  async getALLCollections() { 
-    const collections = world.scoreboard.getObjectives();
-    const chunks = [];
-    for(let i = 0; i < collections.length; i++) { 
-      const collection = collections[i];
+  async getALLCollections(): Promise<[{text: string, status: string, json?: [{name: string, id: string, size:number}]}]> {
+    const collections: ScoreboardObjective[] = world.scoreboard.getObjectives();
+    const chunks: any = [];
+    for(let i: number = 0; i < collections.length; i++) {
+      const collection: ScoreboardObjective = collections[i];
       if(collection.id.startsWith(configs.id)) {
         chunks.push(
           {
@@ -155,17 +155,17 @@ export class NextMDB {
     }
 
     if(chunks.length == 0) {
-      return { text: "Collection not found.", status: "no" };
+      return [{ text: "Collection not found.", status: "no", json: undefined }];
     } else {
-      return { text: "Collection found.", status: "ok", json: chunks };
+      return [{ text: "Collection found.", status: "ok", json: chunks }];
     }
   }
 
-  async deleteAllCollections() {
-    const collections = world.scoreboard.getObjectives();
-    let count = 0;
-    for(let i = 0; i < collections.length; i++) {
-      const collection = collections[i];
+  async deleteAllCollections(): Promise<{text: string, status: string}> {
+    const collections: ScoreboardObjective[] = world.scoreboard.getObjectives();
+    let count: number = 0;
+    for(let i: number = 0; i < collections.length; i++) {
+      const collection: ScoreboardObjective = collections[i];
       if(collection.id.startsWith(configs.id)) {
         world.scoreboard.removeObjective(collection.id)
         count++;
@@ -180,14 +180,14 @@ export class NextMDB {
 
   }
 
-  async resetAllCollections() {
-    const collections = world.scoreboard.getObjectives();
-    let count = 0;
+  async resetAllCollections() :Promise<[{text: string, status: string}]> {
+    const collections: ScoreboardObjective[] = world.scoreboard.getObjectives();
+    let count: number = 0;
     const saves:any = [];
-    for(let i = 0; i < collections.length; i++) {
-      const collection = collections[i];
-      const id = collection.id;
-      const name = collection.displayName;
+    for(let i: number = 0; i < collections.length; i++) {
+      const collection: ScoreboardObjective = collections[i];
+      const id: string = collection.id;
+      const name: string = collection.displayName;
       if(collection.id.startsWith(configs.id)) {
         world.scoreboard.removeObjective(id);
         count++;
@@ -199,27 +199,27 @@ export class NextMDB {
     }
 
     if(saves.length == 0) {
-      return { text: "Collection not found.", status: "no" };
+      return [{ text: "Collection not found.", status: "no" }];
     } else {
 
-      for(let i = 0; i < saves.length; i++) {
+      for(let i: number = 0; i < saves.length; i++) {
         const save = saves[i];
         world.scoreboard.addObjective(save.id, save.name);
         continue;
       }
 
-      return { text: `All collection reseted. Number of reseted clusters: ${count}`, status: "ok" };
+      return [{ text: `All collection reseted. Number of reseted clusters: ${count}`, status: "ok" }];
     }
   }
 }
 
 class Collection {
 
-  private async chunksCollections() {
+  private async chunksCollections(): Promise<void> {
 
-    const collections = world.scoreboard.getObjectives();
+    const collections: ScoreboardObjective[] = world.scoreboard.getObjectives();
     for(let i = 0; i < collections.length; i++) { 
-      const collection = collections[i];
+      const collection: ScoreboardObjective = collections[i];
     }
   }
 
@@ -257,23 +257,32 @@ class Collection {
 
 class PlayerCollection {
 
+  fetch_get() {
+
+  }
+
+  fetch() {
+
+  }
+
+  
 }
 
 export class Base64 {
 
   #chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/"
 
-  encode(string: string) {
-    let encoded:string = "";
-    let padding:string = "";
+  encode(string: string): string {
+    let encoded: string = "";
+    let padding: string = "";
 
-    for(let i = 0; i < string.length % 3; i++) {
+    for(let i: number = 0; i < string.length % 3; i++) {
         padding += "=";
         string += "\0";
     }
 
-    for(let i = 0; i < string.length; i += 3) {
-        const n = (string.charCodeAt(i) << 16) 
+    for(let i: number = 0; i < string.length; i += 3) {
+        const n: number = (string.charCodeAt(i) << 16)
         + (string.charCodeAt(i + 1) << 8)
         + string.charCodeAt(i + 2);
 
@@ -286,14 +295,14 @@ export class Base64 {
     return encoded.substring(0, encoded.length - padding.length) + padding;
   }
 
-  decode(string: string) {
+  decode(string: string): string {
 
     let decoded:string = "";
   
     string = string.replace(/=+$/, "");
   
-    for(let i = 0; i < string.length; i += 4) {
-        const n = (this.#chars.indexOf(string.charAt(i)) << 18) |
+    for(let i: number = 0; i < string.length; i += 4) {
+        const n: number = (this.#chars.indexOf(string.charAt(i)) << 18) |
                   (this.#chars.indexOf(string.charAt(i + 1)) << 12) |
                   (this.#chars.indexOf(string.charAt(i + 2)) << 6) |
                   this.#chars.indexOf(string.charAt(i + 3));
