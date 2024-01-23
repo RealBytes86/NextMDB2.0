@@ -290,7 +290,6 @@ class Collection {
       } else {
         return { text: "The value is not a json", status: "no"};
       }
-
     } else {
       return { text: "Document exists.", status: "no" };
     }
