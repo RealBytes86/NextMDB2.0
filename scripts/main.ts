@@ -5,11 +5,11 @@ import { Base64, NextMDB } from "./Libs/NextMDB";
 const client = new NextMDB();
 const base = new Base64();
 
-const data = client.createCollection("Helllo World!");
+const database = client.Collection("database");
 
 function startEvents() {
 
-  world.beforeEvents.chatSend.subscribe( (ctx) => {
+  world.beforeEvents.chatSend.subscribe( async (ctx) => {
 
     let message:string = ctx.message;
 
@@ -18,22 +18,14 @@ function startEvents() {
   
       const args:any = message.slice(config.prefix.length).trim().split(/ +/g);
       const commandName:string = args.shift().toLowerCase();
-      const scoreboard: ScoreboardObjective | undefined = world.scoreboard.getObjective("Hello");
-  
-      if(commandName == "test") {
-        for(let i: number = 0; i <= 500000; i++) {
-          system.run(() => scoreboard?.setScore("PING#" + i.toString(), i))
-        }
 
-        ctx.sender.sendMessage("Test Erfolgreich")
-  
+      if(commandName == "test") {
+        await database.insertAsync("test", {name: "Kevin"})
         return; 
       } else if(commandName == "encode") {
         ctx.sender.sendMessage(base.encode(args.join(" ")));
         return;
       } else if(commandName == "get") {
-        const score:number | undefined = scoreboard?.getScore(`PING#${args[0]}`);
-        world.sendMessage(`${score}`);
         return;
       }
   
@@ -49,7 +41,7 @@ function startEvents() {
 
 
 world.afterEvents.worldInitialize.subscribe(async (ctx) => {
-
+  await client.createCollection("database");
 
   startEvents();
 })

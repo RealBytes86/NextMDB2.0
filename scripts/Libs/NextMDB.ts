@@ -1,4 +1,10 @@
-import { ScoreboardIdentity, ScoreboardIdentityType, ScoreboardObjective, world } from "@minecraft/server";
+import {
+  EntityUnderwaterMovementComponent,
+  ScoreboardIdentity,
+  ScoreboardIdentityType,
+  ScoreboardObjective,
+  world,
+} from "@minecraft/server";
 
 const configs = {
   name: "NextMDB:",
@@ -10,12 +16,8 @@ export class NextMDB {
 
   #base64 = new Base64();
 
-  Collection(collection: string, json: boolean = true): Collection | { text: string, status: string } {
-    if(typeof collection == "string") {
-      return new Collection(collection, json);
-    } else {
-      return { text: "The collection name is not a string.", status: "no" };
-    }
+  Collection(collection: string, json: boolean = true): Collection {
+    return new Collection(collection, json);
   }
 
   async createCollection(collection: string): Promise<{text: string, status:string}> {
@@ -30,6 +32,7 @@ export class NextMDB {
         }
       }
       world.scoreboard.addObjective(id, name);
+      world.scoreboard.addObjective(this.#base64.encode(collection), collection);
       return { text: "Collection created.", status: "no" };
 
     } else {
@@ -71,6 +74,7 @@ export class NextMDB {
       if(count == 0) {
         return { text: "Collection not found.", status: "no" };
       } else {
+        world.scoreboard.removeObjective(this.#base64.encode(collection));
         return { text: `Collection deleted. Number of deleted clusters: ${count}`, status: "ok" };
       }
     
@@ -100,6 +104,8 @@ export class NextMDB {
         const newID:string = this.#base64.encode(`${configs.name}${collection}#1`)
         const newNAME:string = `${collection}#1`; 
         world.scoreboard.addObjective(newID, newNAME);
+        world.scoreboard.removeObjective(this.#base64.encode(collection));
+        world.scoreboard.addObjective(this.#base64.encode(collection), collection);
 
         return { text: `Collection reseted. Number of reseted clusters: ${count}`, status: "ok" };
       }
@@ -222,7 +228,7 @@ class Collection {
   private async getCluster(document: string, id: number): Promise<ScoreboardObjective> {
 
     const cluster_id: number = Math.ceil(id / configs.max);
-    const cid:string = this.collection + "#" + cluster_id.toString();
+    const cid:string = this.#base.encode(configs.name + this.collection + "#" + cluster_id.toString());
     const cluster:ScoreboardObjective | undefined = world.scoreboard.getObjective(cid);
 
     if(cluster == undefined) {
@@ -233,7 +239,11 @@ class Collection {
   }
 
   private async documentToId(document: string): Promise<number | undefined> {
-    return world.scoreboard.getObjective(this.#base.encode(this.collection))?.getScore(document);
+    try {
+      return world.scoreboard.getObjective(this.#base.encode(this.collection))?.getScore(document);
+    } catch {
+      return undefined;
+    }
   }
 
   collection: string;
@@ -248,31 +258,42 @@ class Collection {
 
   }
 
-  async insertAsync(document: string, value: object): Promise<{text: string, status: string, json: null}> {
-    if(typeof document != "string" || document.length == 0) return { text: "The document is not a string.", status: "no", json: null };
-    if(typeof value != "object") return { text: "The value is not a object", status: "no", json: null };
+  async insertAsync(key: string, value: object): Promise<{text: string, status: string}> {
+    if(typeof key != "string" || key.length == 0) return { text: "The key is not a string.", status: "no"};
+    if(typeof value != "object") return { text: "The value is not a object", status: "no"};
 
-    const j: {json: object, isValid: boolean} = JParse(value, false);
-
-    if(j.isValid) {
-      return { text: "The value is not a json.", status: "no", json: null };
-    }
-
-    const id: number | undefined = await this.documentToId(document);
+    const id: number | undefined = await this.documentToId(key);
 
     if(id == undefined) {
       const objective :ScoreboardObjective | undefined = world.scoreboard.getObjective(this.#base.encode(this.collection));
-      const id: number = objective?.getScores().length ?? -1;
+      const id: number = (objective?.getScores().length  ?? -1) + 1;
 
-      if(id == -1) {
-        throw new Error("NEXTMDB API ERROR");
+      if(id == 0) {
+        throw new Error("NEXTMDB API ERROR: ID of zero");
       }
 
-      objective?.setScore(document, id);
-      const cluster: ScoreboardObjective = await this.getCluster(document, id);
-      cluster.setScore()
+      objective?.setScore(key, id);
+
+      const cluster: ScoreboardObjective = await this.getCluster(key, id);
+      const json_object: {json: any, isValid: boolean} = JParse(
+        {
+        document: {
+          name: key,
+          created: new Date().getTime(),
+        },
+          value
+      }, false)
+
+      if(json_object.isValid) {
+        cluster.setScore(`${key}:${escapeQuotes(json_object.json)}`, 0);
+        return { text: "Document created.", status: "ok" }
+      } else {
+        return { text: "The value is not a json", status: "no"};
+      }
+
     } else {
-      return  { text: "Document exists.", status: "no", json: null };
+      console.warn("i am here")
+      return { text: "Document exists.", status: "no" };
     }
 
   }
