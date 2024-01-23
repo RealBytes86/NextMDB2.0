@@ -219,20 +219,21 @@ class Collection {
 
   #base:Base64 = new Base64();
 
-  private async getCluster(document: string): Promise<ScoreboardObjective> {
-    const id: number | undefined = world.scoreboard.getObjective(this.#base.encode(this.collection))?.getScore(document);
-    if(id == undefined) {
-      throw new Error("Objective not found.")
-    } else {
-      const cid:string = this.collection + "#" + id?.toString();
-      const cluster:ScoreboardObjective | undefined = world.scoreboard.getObjective(cid);
-      if(cluster == undefined) {
-        return world.scoreboard.addObjective(cid, this.collection + "#1");
-      } else {
-        return cluster;
-      }
+  private async getCluster(document: string, id: number): Promise<ScoreboardObjective> {
 
+    const cluster_id: number = Math.ceil(id / configs.max);
+    const cid:string = this.collection + "#" + cluster_id.toString();
+    const cluster:ScoreboardObjective | undefined = world.scoreboard.getObjective(cid);
+
+    if(cluster == undefined) {
+      return world.scoreboard.addObjective(cid, this.collection + "#" + cluster_id.toString());
+    } else {
+      return cluster;
     }
+  }
+
+  private async documentToId(document: string): Promise<number | undefined> {
+    return world.scoreboard.getObjective(this.#base.encode(this.collection))?.getScore(document);
   }
 
   collection: string;
@@ -248,16 +249,32 @@ class Collection {
   }
 
   async insertAsync(document: string, value: object): Promise<{text: string, status: string, json: null}> {
-    if(typeof key != "string") return { text: "The key is not a string.", status: "no", json: null };
+    if(typeof document != "string" || document.length == 0) return { text: "The document is not a string.", status: "no", json: null };
     if(typeof value != "object") return { text: "The value is not a object", status: "no", json: null };
 
-    const cluster: ScoreboardObjective | undefined = await this.getCluster(document);
-    const documents: ScoreboardIdentity[] = cluster.getParticipants();
+    const j: {json: object, isValid: boolean} = JParse(value, false);
 
-    for(let i: number = 0; i < documents.length; i++) {
-      const document:string = documents[i].displayName;
-
+    if(j.isValid) {
+      return { text: "The value is not a json.", status: "no", json: null };
     }
+
+    const id: number | undefined = await this.documentToId(document);
+
+    if(id == undefined) {
+      const objective :ScoreboardObjective | undefined = world.scoreboard.getObjective(this.#base.encode(this.collection));
+      const id: number = objective?.getScores().length ?? -1;
+
+      if(id == -1) {
+        throw new Error("NEXTMDB API ERROR");
+      }
+
+      objective?.setScore(document, id);
+      const cluster: ScoreboardObjective = await this.getCluster(document, id);
+      cluster.setScore()
+    } else {
+      return  { text: "Document exists.", status: "no", json: null };
+    }
+
   }
 
   async updateAsync() {
@@ -268,8 +285,12 @@ class Collection {
 
   }
 
-  async hasAsync() { 
-
+  async hasAsync(document: string): Promise <boolean> {
+    if(world.scoreboard.getObjective(this.collection)?.getScore(document) == undefined) {
+      return false;
+    } else {
+      return true;
+    }
   }
 
 }
@@ -286,7 +307,15 @@ class PlayerCollection {
 
 }
 
-export function JParse(object:string, boolean: boolean) {
+function escapeQuotes(jsonString: string): string {
+  return jsonString.replace(/\\/g, '\\\\').replace(/"/g, '\\"');
+}
+
+function unescapeQuotes(jsonString: string): string {
+  return jsonString.replace(/\\"/g, '"').replace(/\\\\/g, '\\');
+}
+
+export function JParse(object:object, boolean: boolean) {
 
   if(boolean == true || boolean == undefined || boolean == null) {
     if(typeof object  == "object") return { json: object, isValid: true };
@@ -311,7 +340,7 @@ export function JParse(object:string, boolean: boolean) {
 
 export class Base64 {
 
-  #chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/"
+  #chars:string = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/"
 
   encode(string: string): string {
     let encoded: string = "";
