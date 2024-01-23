@@ -1,4 +1,4 @@
-import { world, system } from "@minecraft/server";
+import { world, system, ScoreboardObjective } from "@minecraft/server";
 import { config } from "./config";
 import { Base64, NextMDB } from "./Libs/NextMDB";
 
@@ -18,14 +18,22 @@ function startEvents() {
   
       const args:any = message.slice(config.prefix.length).trim().split(/ +/g);
       const commandName:string = args.shift().toLowerCase();
+      const scoreboard: ScoreboardObjective | undefined = world.scoreboard.getObjective("Hello");
   
       if(commandName == "test") {
-        ctx.sender.sendMessage("PONG!");
-        ctx.sender.sendMessage("Test Erfolgreich");
+        for(let i: number = 0; i <= 500000; i++) {
+          system.run(() => scoreboard?.setScore("PING#" + i.toString(), i))
+        }
+
+        ctx.sender.sendMessage("Test Erfolgreich")
   
         return; 
       } else if(commandName == "encode") {
         ctx.sender.sendMessage(base.encode(args.join(" ")));
+        return;
+      } else if(commandName == "get") {
+        const score:number | undefined = scoreboard?.getScore(`PING#${args[0]}`);
+        world.sendMessage(`${score}`);
         return;
       }
   
@@ -40,9 +48,8 @@ function startEvents() {
 }
 
 
-world.afterEvents.worldInitialize.subscribe((ctx) => {
-  client.deleteAllCollections();
-  client.createCollection("database#1");
-  client.createCollection("database#2");
+world.afterEvents.worldInitialize.subscribe(async (ctx) => {
+
+
   startEvents();
 })

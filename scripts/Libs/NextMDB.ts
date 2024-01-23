@@ -1,4 +1,4 @@
-import { ScoreboardObjective, world } from "@minecraft/server";
+import { ScoreboardIdentity, ScoreboardIdentityType, ScoreboardObjective, world } from "@minecraft/server";
 
 const configs = {
   name: "NextMDB:",
@@ -9,7 +9,7 @@ export class NextMDB {
 
   #base64 = new Base64();
 
-  Collection(collection: string, json = true) {
+  Collection(collection: string, json: boolean = true): Collection | { text: string, status: string } {
     if(typeof collection == "string") {
       return new Collection(collection, json);
     } else {
@@ -17,7 +17,7 @@ export class NextMDB {
     }
   }
 
-  async createCollection(collection: string) {
+  async createCollection(collection: string): Promise<{text: string, status:string}> {
     if(typeof collection == "string") {
       const collections: ScoreboardObjective[] = world.scoreboard.getObjectives();
       const id:string = this.#base64.encode(`${configs.name}${collection}#1`)
@@ -37,7 +37,7 @@ export class NextMDB {
     
   }
 
-  async existsCollection(collection: string) {
+  async existsCollection(collection: string): Promise<boolean> {
     if(typeof collection == "string") {
       const collections: ScoreboardObjective[] = world.scoreboard.getObjectives();
       const id:string = this.#base64.encode(`${configs.name}${collection}#1`)
@@ -109,7 +109,7 @@ export class NextMDB {
 
   }
 
-  async getCollection(collection: string): Promise<{text: string, status: string, json?: [{name: string, id: string, size:number}]}> {
+  async getCollection(collection: string): Promise<{text: string, status: string, json: [{name: string, id: string, size:number}] | null}> {
 
     if(typeof collection == "string") {
       const collections: ScoreboardObjective[] = world.scoreboard.getObjectives();
@@ -127,18 +127,18 @@ export class NextMDB {
       }
       
       if(chunks.length == 0) {
-        return { text: "Collection not found.", status: "no", json: undefined };
+        return { text: "Collection not found.", status: "no", json: null };
       } else {
         return { text: "Collection found.", status: "ok", json: chunks };
       }
 
     } else {
-      return { text: "The collection name is not a string.", status: "no" };
+      return { text: "The collection name is not a string.", status: "no", json: null };
     }
 
   }
 
-  async getALLCollections(): Promise<[{text: string, status: string, json?: [{name: string, id: string, size:number}]}]> {
+  async getALLCollections(): Promise<{text: string, status: string, json: [{name: string, id: string, size:number}] | null}> {
     const collections: ScoreboardObjective[] = world.scoreboard.getObjectives();
     const chunks: any = [];
     for(let i: number = 0; i < collections.length; i++) {
@@ -155,9 +155,9 @@ export class NextMDB {
     }
 
     if(chunks.length == 0) {
-      return [{ text: "Collection not found.", status: "no", json: undefined }];
+      return { text: "Collection not found.", status: "no", json: null };
     } else {
-      return [{ text: "Collection found.", status: "ok", json: chunks }];
+      return { text: "Collection found.", status: "ok", json: chunks };
     }
   }
 
@@ -180,7 +180,7 @@ export class NextMDB {
 
   }
 
-  async resetAllCollections() :Promise<[{text: string, status: string}]> {
+  async resetAllCollections() :Promise<{text: string, status: string}> {
     const collections: ScoreboardObjective[] = world.scoreboard.getObjectives();
     let count: number = 0;
     const saves:any = [];
@@ -199,7 +199,7 @@ export class NextMDB {
     }
 
     if(saves.length == 0) {
-      return [{ text: "Collection not found.", status: "no" }];
+      return { text: "Collection not found.", status: "no" };
     } else {
 
       for(let i: number = 0; i < saves.length; i++) {
@@ -208,36 +208,36 @@ export class NextMDB {
         continue;
       }
 
-      return [{ text: `All collection reseted. Number of reseted clusters: ${count}`, status: "ok" }];
+      return { text: `All collection reseted. Number of reseted clusters: ${count}`, status: "ok" };
     }
   }
 }
 
+
 class Collection {
-
-  private async chunksCollections(): Promise<void> {
-
-    const collections: ScoreboardObjective[] = world.scoreboard.getObjectives();
-    for(let i = 0; i < collections.length; i++) { 
-      const collection: ScoreboardObjective = collections[i];
+  #base:Base64 = new Base64();
+  private getCluster(document: string): ScoreboardObjective | undefined {
+    const id: number | undefined = world.scoreboard.getObjective(this.#base.encode(this.collection))?.getScore(document);
+    if(id == undefined) {
+      throw new Error("Objective not found.")
+    } else {
+      return world.scoreboard.getObjective(this.collection + "#" + id.toString());
     }
   }
 
   collection: string;
-  mem: any;
   json: boolean;
-  constructor(collection: string, json:boolean) {
+
+  constructor(collection: string, json: boolean) {
     this.collection = collection;
     this.json = json;
   }
 
   async findAsync() {
-
-    const chunks = [];
-
   }
 
-  async insertAsync() { 
+  async insertAsync() {
+
 
   }
 
