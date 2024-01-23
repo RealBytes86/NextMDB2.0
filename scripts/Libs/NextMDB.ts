@@ -2,7 +2,8 @@ import { ScoreboardIdentity, ScoreboardIdentityType, ScoreboardObjective, world 
 
 const configs = {
   name: "NextMDB:",
-  id: "TmV4dE1EQj"
+  id: "TmV4dE1EQj",
+  max: 5000,
 }
 
 export class NextMDB {
@@ -215,13 +216,22 @@ export class NextMDB {
 
 
 class Collection {
+
   #base:Base64 = new Base64();
-  private async getCluster(document: string): Promise<ScoreboardObjective | undefined> {
+
+  private async getCluster(document: string): Promise<ScoreboardObjective> {
     const id: number | undefined = world.scoreboard.getObjective(this.#base.encode(this.collection))?.getScore(document);
     if(id == undefined) {
       throw new Error("Objective not found.")
     } else {
-      return world.scoreboard.getObjective(this.collection + "#" + id.toString());
+      const cid:string = this.collection + "#" + id?.toString();
+      const cluster:ScoreboardObjective | undefined = world.scoreboard.getObjective(cid);
+      if(cluster == undefined) {
+        return world.scoreboard.addObjective(cid, this.collection + "#1");
+      } else {
+        return cluster;
+      }
+
     }
   }
 
@@ -237,9 +247,17 @@ class Collection {
 
   }
 
-  async insertAsync() {
+  async insertAsync(document: string, value: object): Promise<{text: string, status: string, json: null}> {
+    if(typeof key != "string") return { text: "The key is not a string.", status: "no", json: null };
+    if(typeof value != "object") return { text: "The value is not a object", status: "no", json: null };
 
+    const cluster: ScoreboardObjective | undefined = await this.getCluster(document);
+    const documents: ScoreboardIdentity[] = cluster.getParticipants();
 
+    for(let i: number = 0; i < documents.length; i++) {
+      const document:string = documents[i].displayName;
+
+    }
   }
 
   async updateAsync() {
@@ -266,8 +284,30 @@ class PlayerCollection {
 
   }
 
-  
 }
+
+export function JParse(object:string, boolean: boolean) {
+
+  if(boolean == true || boolean == undefined || boolean == null) {
+    if(typeof object  == "object") return { json: object, isValid: true };
+    try {
+      const jsonParse = JSON.parse(object);
+      return { json: jsonParse, isValid: true };
+    }catch {
+      return { json: {}, isValid: false };
+    }
+  } else if(boolean == false) {
+    if(typeof object == "object") {
+      return { json: JSON.stringify(object), isValid: true };
+    } else {
+      return {json: {}, isValid: false };
+    }
+  } else {
+    throw new Error("Invalid boolean");
+  }
+
+}
+
 
 export class Base64 {
 
