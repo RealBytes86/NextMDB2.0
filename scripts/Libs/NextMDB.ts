@@ -216,7 +216,7 @@ export class NextMDB {
 
 class Collection {
   #base:Base64 = new Base64();
-  private getCluster(document: string): ScoreboardObjective | undefined {
+  private async getCluster(document: string): Promise<ScoreboardObjective | undefined> {
     const id: number | undefined = world.scoreboard.getObjective(this.#base.encode(this.collection))?.getScore(document);
     if(id == undefined) {
       throw new Error("Objective not found.")
@@ -234,6 +234,7 @@ class Collection {
   }
 
   async findAsync() {
+
   }
 
   async insertAsync() {
