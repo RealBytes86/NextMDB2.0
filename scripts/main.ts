@@ -20,14 +20,16 @@ function startEvents() {
       const commandName:string = args.shift().toLowerCase();
 
       if(commandName == "test") {
-        for(let i:number = 0; i <= 1; i++) {
-          await database.insertAsync(i.toString(), {id: i});
-        }
+        await database.insertAsync("Hello", {name: "Kevin"});
+        await database.insertAsync("Tim", {name: "Lol"});
         return; 
       } else if(commandName == "encode") {
         ctx.sender.sendMessage(base.encode(args.join(" ")));
         return;
       } else if(commandName == "get") {
+        database.findAsync("Tim").then((response) => {
+          world.sendMessage(JSON.stringify(response.json, null, 2))
+        })
         return;
       }
   

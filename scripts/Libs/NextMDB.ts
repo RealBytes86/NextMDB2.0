@@ -16,8 +16,8 @@ export class NextMDB {
 
   #base64 = new Base64();
 
-  Collection(collection: string, json: boolean = true): Collection {
-    return new Collection(collection, json);
+  Collection(collection: string): Collection {
+    return new Collection(collection);
   }
 
   async createCollection(collection: string): Promise<{text: string, status:string}> {
@@ -247,15 +247,36 @@ class Collection {
   }
 
   collection: string;
-  json: boolean;
 
-  constructor(collection: string, json: boolean) {
+  constructor(collection: string) {
     this.collection = collection;
-    this.json = json;
   }
 
-  async findAsync() {
+  async findAsync(key: string): Promise<{text: string, status: string, json: null | object  }> {
+    if(typeof key != "string" || key.length == 0) return { text: "They key is not a string.", status: "no", json: null };
 
+    const id: number | undefined = await  this.documentToId(key);
+
+    if(id == undefined) {
+      return { text: "Document not exists.", status: "no", json: null };
+    } else {
+      const cluster: ScoreboardObjective | undefined = await this.getCluster(key, id);
+      const documents: ScoreboardIdentity[] = cluster.getParticipants();
+      for(let i: number = 0; i < documents.length; i++ ) {
+        let document: string = unescapeQuotes(documents[i].displayName);
+        if(document.startsWith(key)) {
+          document = document.slice(key.length + 1);
+          const j: any = JParse(document, undefined);
+          if(j.isValid) {
+            return { text: "Document exists.", status: "ok", json: j.json };
+          } else {
+            return { text: "API ERROR. findAsync cant parsed json.", status: "no", json: null };
+          }
+        }
+      }
+
+      return { text: "Document not found.", status: "no", json: null};
+    }
   }
 
   async insertAsync(key: string, value: object): Promise<{text: string, status: string}> {
@@ -288,7 +309,7 @@ class Collection {
         cluster.setScore(`${key}:${escapeQuotes(json_object.json)}`, 0);
         return { text: "Document created.", status: "ok" }
       } else {
-        return { text: "The value is not a json", status: "no"};
+        return { text: "The value is not a json.", status: "no"};
       }
     } else {
       return { text: "Document exists.", status: "no" };
@@ -314,6 +335,10 @@ class Collection {
 
 }
 
+class document_edit {
+
+}
+
 class PlayerCollection {
 
   fetch_get() {
@@ -334,7 +359,7 @@ function unescapeQuotes(jsonString: string): string {
   return jsonString.replace(/\\"/g, '"').replace(/\\\\/g, '\\');
 }
 
-export function JParse(object:object, boolean: boolean) {
+export function JParse(object:any, boolean: any) {
 
   if(boolean == true || boolean == undefined || boolean == null) {
     if(typeof object  == "object") return { json: object, isValid: true };
