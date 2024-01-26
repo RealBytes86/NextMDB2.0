@@ -302,7 +302,7 @@ class Collection {
           name: key,
           created: new Date().getTime(),
         },
-          value
+          ...value
       }, false)
 
       if(json_object.isValid) {
@@ -317,7 +317,48 @@ class Collection {
 
   }
 
-  async updateAsync() {
+  async updateAsync(key: string, value: object) : Promise<{text: string, status: string}> {
+    if(typeof key != "string" || key.length == 0) return { text: "The key is not a string.", status: "no"};
+    if(typeof value != "object") return { text: "The value is not a object", status: "no"};
+
+    const id: number | undefined = await this.documentToId(key);
+
+    if(id == undefined) {
+      return  { text: "Document not exists.", status: "no" };
+    } else {
+      const cluster: ScoreboardObjective = await this.getCluster(key, id);
+      const documents : ScoreboardIdentity[] = cluster.getParticipants();
+      for(let i: number = 0; i < documents.length; i++) {
+        let displayName:string = documents[i].displayName;
+        let document: string = unescapeQuotes(displayName);
+        if(document.startsWith(key)) {
+
+          const valueJSON = JParse(value, undefined);
+
+          if(valueJSON.isValid == false) {
+            return  { text: "The value is not a json.", status: "no" };
+          }
+
+          document = document.slice(key.length + 1);
+
+          const documentJSON = JParse(document, undefined);
+
+          if(documentJSON.isValid == false) {
+            return { text: "The document is not a json. (API ERROR). please delete the document.", status: "no" };
+          }
+
+          cluster.removeParticipant(displayName);
+          cluster.setScore(escapeQuotes(JSON.stringify({
+            document: documentJSON.json.document,
+            ...value
+          })), 0);
+
+          return { text: "Document updated.", status: "ok" };
+        }
+      }
+
+      return { text: "Document not found (cluster)", status: "no" };
+    }
 
   }
 
