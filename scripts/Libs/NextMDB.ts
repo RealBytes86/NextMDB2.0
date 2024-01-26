@@ -344,7 +344,7 @@ class Collection {
           const documentJSON = JParse(document, undefined);
 
           if(documentJSON.isValid == false) {
-            return { text: "The document is not a json. (API ERROR). please delete the document.", status: "no" };
+            return { text: "The document is not a json (API ERROR). please delete the document.", status: "no" };
           }
 
           cluster.removeParticipant(displayName);
@@ -356,7 +356,6 @@ class Collection {
           return { text: "Document updated.", status: "ok" };
         }
       }
-
       return { text: "Document not found (cluster)", status: "no" };
     }
 
