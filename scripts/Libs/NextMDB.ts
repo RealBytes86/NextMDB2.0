@@ -360,7 +360,9 @@ class Collection {
 
   }
 
-  async deleteAsync() {
+  async deleteAsync(key: string) {
+    if(typeof key != "string" || key.length == 0) return { text: "The key is not a string.", status: "no"};
+
 
   }
 
