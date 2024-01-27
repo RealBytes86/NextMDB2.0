@@ -299,7 +299,6 @@ class Collection {
       const json_object: {json: any, isValid: boolean} = JParse(
         {
         document: {
-          name: key,
           created: new Date().getTime(),
         },
           ...value
@@ -348,10 +347,10 @@ class Collection {
           }
 
           cluster.removeParticipant(displayName);
-          cluster.setScore(escapeQuotes(JSON.stringify({
+          cluster.setScore(`${key}:${escapeQuotes(JSON.stringify({
             document: documentJSON.json.document,
             ...value
-          })), 0);
+          }))}`, 0);
 
           return { text: "Document updated.", status: "ok" };
         }

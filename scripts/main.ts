@@ -31,6 +31,12 @@ function startEvents() {
           world.sendMessage(JSON.stringify(response.json, null, 2))
         })
         return;
+      } else if (commandName == "update") {
+        database.updateAsync("Tim", {name: "Cool"}).then((response) => {
+          console.warn(response.text)
+        })
+
+        return;
       }
   
   
